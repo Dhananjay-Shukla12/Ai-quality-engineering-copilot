@@ -1,0 +1,25 @@
+{
+    "validUser": {
+      "username": "standard_user",
+      "password": "secret_sauce",
+      "firstName": "Dhananjay",
+      "lastName": "Shukla",
+      "postalCode": "208001"
+    },
+    "invalidUser": {
+      "username": "invalid_user",
+      "password": "invalid_password"
+    },
+    "wrongPasswordUser": {
+      "username": "standard_user",
+      "password": "wrong_password"
+    },
+    "emptyUsernameUser": {
+      "username": "",
+      "password": "secret_sauce"
+    },
+    "emptyPasswordUser": {
+      "username": "standard_user",
+      "password": ""
+    }
+  }
