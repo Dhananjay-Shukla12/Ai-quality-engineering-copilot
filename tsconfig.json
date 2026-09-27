@@ -12,6 +12,7 @@
     "tests/**/*.ts",
     "pages/**/*.ts",
     "fixtures/**/*.ts",
-    "ai/**/*.ts"
+    "ai/**/*.ts",
+    "generated/**/*.ts"
   ]
 }

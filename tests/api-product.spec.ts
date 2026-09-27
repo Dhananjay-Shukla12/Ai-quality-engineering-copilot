@@ -3,7 +3,7 @@ import { ProductApi } from "../api/ProductApi";
 
 test.describe("Product API Tests", () => {
 
-    test("get product by id", async ({ request }) => {
+    test("get product by id @api @regression", async ({ request }) => {
 
         const productApi = new ProductApi(request);
 
@@ -19,7 +19,7 @@ test.describe("Product API Tests", () => {
     });
 
 
-    test("search products", async ({ request }) => {
+    test("search products @api @regression", async ({ request }) => {
 
         const productApi = new ProductApi(request);
 
@@ -34,7 +34,7 @@ test.describe("Product API Tests", () => {
     });
 
 
-    test("create product", async ({ request }) => {
+    test("create product @api @regression", async ({ request }) => {
 
         const productApi = new ProductApi(request);
 

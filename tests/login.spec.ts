@@ -4,7 +4,7 @@ import userData from "../test-data/users.json";
 
 test.describe("Login Tests", () => {
 
-    test("valid login", async ({ page }) => {
+    test("valid login @smoke @regression", async ({ page }) => {
         const loginPage = new LoginPage(page);
 
         await loginPage.open();
@@ -19,7 +19,7 @@ test.describe("Login Tests", () => {
     });
 
 
-    test("login with wrong password", async ({ page }) => {
+    test("login with wrong password @regression", async ({ page }) => {
         const loginPage = new LoginPage(page);
 
         await loginPage.open();
@@ -35,7 +35,7 @@ test.describe("Login Tests", () => {
     });
 
 
-    test("login with invalid username", async ({ page }) => {
+    test("login with invalid username @regression", async ({ page }) => {
         const loginPage = new LoginPage(page);
 
         await loginPage.open();
@@ -51,7 +51,7 @@ test.describe("Login Tests", () => {
     });
 
 
-    test("login with empty username", async ({ page }) => {
+    test("login with empty username @regression", async ({ page }) => {
         const loginPage = new LoginPage(page);
 
         await loginPage.open();
@@ -67,7 +67,7 @@ test.describe("Login Tests", () => {
     });
 
 
-    test("login with empty password", async ({ page }) => {
+    test("login with empty password @regression", async ({ page }) => {
         const loginPage = new LoginPage(page);
 
         await loginPage.open();

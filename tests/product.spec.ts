@@ -1,6 +1,6 @@
 import { test, expect } from "../fixtures/test-fixtures";
 
-test("product page is visible", async ({ loggedInPage }) => {
+test("product page is visible @smoke @regression", async ({ loggedInPage }) => {
 
     await expect(
         loggedInPage.locator(".title")

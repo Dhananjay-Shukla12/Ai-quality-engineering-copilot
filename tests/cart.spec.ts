@@ -2,7 +2,7 @@ import { test, expect } from "../fixtures/test-fixtures";
 import { ProductPage } from "../pages/ProductPage";
 import { CartPage } from "../pages/CartPage";
 
-test("user can add product to cart", async ({ loggedInPage }) => {
+test("user can add product to cart @regression", async ({ loggedInPage }) => {
 
     const productPage = new ProductPage(loggedInPage);
     const cartPage = new CartPage(loggedInPage);

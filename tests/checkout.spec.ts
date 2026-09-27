@@ -4,7 +4,7 @@ import { ProductPage } from "../pages/ProductPage";
 import { CheckoutPage } from "../pages/CheckoutPage";
 import userData from "../test-data/users.json";
 
-test("user can complete checkout", async ({ page }) => {
+test("user can complete checkout @smoke @regression", async ({ page }) => {
 
     const loginPage = new LoginPage(page);
     const productPage = new ProductPage(page);
