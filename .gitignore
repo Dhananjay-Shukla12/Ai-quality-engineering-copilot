@@ -5,7 +5,7 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
-
+failure.log
 # Environment variables
 .env
 

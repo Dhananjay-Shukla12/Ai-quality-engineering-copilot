@@ -2,7 +2,11 @@
   "name": "ai-quality-engineering-copitlo",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {"test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "typecheck": "tsc --noEmit",
+    "analyze-failure": "tsx scripts/run-and-analyze.ts",
+  "self-heal": "tsx scripts/self-heal.ts"},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -16,5 +20,7 @@
     "@google/genai": "^2.24.0",
     "dotenv": "^18.0.4",
     "zod": "^4.6.5"
-  }
+  },
+  "analyze-failure": "tsx scripts/run-and-analyze.ts"
+  
 }
