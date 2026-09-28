@@ -1,3 +1,4 @@
+[![Playwright Tests](https://github.com/Dhananjay-Shukla12/Ai-quality-engineering-copilot/actions/workflows/playwright.yml/badge.svg)](https://github.com/Dhananjay-Shukla12/Ai-quality-engineering-copilot/actions/workflows/playwright.yml)
 # AI Quality Engineering Copilot
 
 An AI-powered Quality Engineering project built with Playwright and TypeScript.
