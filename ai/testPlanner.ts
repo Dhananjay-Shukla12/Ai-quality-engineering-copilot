@@ -1,118 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
-import "dotenv/config";
+import { generateStructuredJson } from "./gemini";
 import { testPlanSchema, TestPlan } from "./schemas";
-
-const apiKey = process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not set in .env");
-}
-
-const ai = new GoogleGenAI({ apiKey });
-
-
-async function generateWithRetry(
-    ai: GoogleGenAI,
-    prompt: string,
-    maxAttempts = 4
-) {
-    let lastError: unknown;
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-            console.log(`Gemini attempt ${attempt}/${maxAttempts}...`);
-
-            return await ai.models.generateContent({
-                model: "gemini-3.8-flash",
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "object",
-                        properties: {
-                            testCases: {
-                                type: "array",
-                                items: {
-                                    type: "object",
-                                    properties: {
-                                        id: {
-                                            type: "string"
-                                        },
-                                        title: {
-                                            type: "string"
-                                        },
-                                        type: {
-                                            type: "string",
-                                            enum: [
-                                                "Positive",
-                                                "Negative",
-                                                "Edge"
-                                            ]
-                                        },
-                                        priority: {
-                                            type: "string",
-                                            enum: [
-                                                "High",
-                                                "Medium",
-                                                "Low"
-                                            ]
-                                        },
-                                        steps: {
-                                            type: "array",
-                                            items: {
-                                                type: "string"
-                                            }
-                                        },
-                                        expectedResult: {
-                                            type: "string"
-                                        }
-                                    },
-                                    required: [
-                                        "id",
-                                        "title",
-                                        "type",
-                                        "priority",
-                                        "steps",
-                                        "expectedResult"
-                                    ]
-                                }
-                            }
-                        },
-                        required: ["testCases"]
-                    }
-                }
-            });
-
-        } catch (error: any) {
-
-            lastError = error;
-
-            const status = error?.status;
-
-            if (status !== 503 && status !== 429) {
-                throw error;
-            }
-
-            if (attempt === maxAttempts) {
-                break;
-            }
-
-            const delay = 1000 * 2 ** (attempt - 1);
-
-            console.log(
-                `Temporary Gemini error (${status}). ` +
-                `Retrying in ${delay / 1000}s...`
-            );
-
-            await new Promise(resolve =>
-                setTimeout(resolve, delay)
-            );
-        }
-    }
-
-    throw lastError;
-}
-
 
 export async function generateTestPlan(
     userStory: string
@@ -158,13 +45,62 @@ export async function generateTestPlan(
     - Keep every test case executable against the described application.
     `;
 
-    const response = await generateWithRetry(ai, prompt);
+    const response = await generateStructuredJson(
+        prompt,
+        {
+            type: "object",
+            properties: {
+                testCases: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            id: {
+                                type: "string"
+                            },
+                            title: {
+                                type: "string"
+                            },
+                            type: {
+                                type: "string",
+                                enum: [
+                                    "Positive",
+                                    "Negative",
+                                    "Edge"
+                                ]
+                            },
+                            priority: {
+                                type: "string",
+                                enum: [
+                                    "High",
+                                    "Medium",
+                                    "Low"
+                                ]
+                            },
+                            steps: {
+                                type: "array",
+                                items: {
+                                    type: "string"
+                                }
+                            },
+                            expectedResult: {
+                                type: "string"
+                            }
+                        },
+                        required: [
+                            "id",
+                            "title",
+                            "type",
+                            "priority",
+                            "steps",
+                            "expectedResult"
+                        ]
+                    }
+                }
+            },
+            required: ["testCases"]
+        }
+    );
 
-    if (!response.text) {
-        throw new Error("Gemini returned an empty response");
-    }
-
-    const parsed = JSON.parse(response.text);
-
-    return testPlanSchema.parse(parsed);
+    return testPlanSchema.parse(response);
 }

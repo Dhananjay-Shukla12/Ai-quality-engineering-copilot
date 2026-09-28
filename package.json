@@ -1,5 +1,5 @@
 {
-  "name": "ai-quality-engineering-copitlo",
+  "name": "ai-quality-engineering-copilot",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {"test": "playwright test",

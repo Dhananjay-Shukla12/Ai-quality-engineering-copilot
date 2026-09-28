@@ -1,14 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
-import "dotenv/config";
+import { generateStructuredJson } from "./gemini";
 import { z } from "zod";
-
-const apiKey = process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not set in .env");
-}
-
-const ai = new GoogleGenAI({ apiKey });
 
 const repairedTestSchema = z.object({
     repairedCode: z.string()
@@ -17,68 +8,6 @@ const repairedTestSchema = z.object({
 export type RepairedTest = z.infer<
     typeof repairedTestSchema
 >;
-
-async function generateWithRetry(
-    prompt: string,
-    maxAttempts = 2
-) {
-    let lastError: unknown;
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-            console.log(
-                `Gemini repair attempt ${attempt}/${maxAttempts}...`
-            );
-
-            return await ai.models.generateContent({
-                model: "gemini-3.1-flash-lite",
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "object",
-                        properties: {
-                            repairedCode: {
-                                type: "string"
-                            }
-                        },
-                        required: ["repairedCode"]
-                    }
-                }
-            });
-
-        } catch (error: any) {
-            lastError = error;
-
-            const status = error?.status;
-
-            if (status === 429) {
-                throw error;
-            }
-
-            if (status !== 503) {
-                throw error;
-            }
-
-            if (attempt === maxAttempts) {
-                break;
-            }
-
-            const delay = 1000 * 2 ** (attempt - 1);
-
-            console.log(
-                `Temporary Gemini error (${status}). ` +
-                `Retrying in ${delay / 1000}s...`
-            );
-
-            await new Promise(resolve =>
-                setTimeout(resolve, delay)
-            );
-        }
-    }
-
-    throw lastError;
-}
 
 export async function repairPlaywrightTest(
     testCode: string,
@@ -116,17 +45,18 @@ RULES:
 - Do not use markdown code fences.
 `;
 
-    const response =
-        await generateWithRetry(prompt);
+    const response = await generateStructuredJson(
+        prompt,
+        {
+            type: "object",
+            properties: {
+                repairedCode: {
+                    type: "string"
+                }
+            },
+            required: ["repairedCode"]
+        }
+    );
 
-    if (!response.text) {
-        throw new Error(
-            "Gemini returned an empty repair response"
-        );
-    }
-
-    const parsed =
-        JSON.parse(response.text);
-
-    return repairedTestSchema.parse(parsed);
+    return repairedTestSchema.parse(response);
 }

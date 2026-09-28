@@ -1,89 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
-import "dotenv/config";
+import { generateStructuredJson } from "./gemini";
 import {
     generatedTestSuiteSchema,
     GeneratedTestSuite,
     TestPlan
 } from "./schemas";
-
-const apiKey = process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not set in .env");
-}
-
-const ai = new GoogleGenAI({ apiKey });
-
-
-async function generateWithRetry(
-    prompt: string,
-    maxAttempts = 2
-) {
-    let lastError: unknown;
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-            console.log(
-                `Gemini code generation attempt ${attempt}/${maxAttempts}...`
-            );
-
-            return await ai.models.generateContent({
-                model: "gemini-3.1-flash-lite",
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "object",
-                        properties: {
-                            fileName: {
-                                type: "string"
-                            },
-                            testCode: {
-                                type: "string"
-                            }
-                        },
-                        required: [
-                            "fileName",
-                            "testCode"
-                        ]
-                    }
-                }
-            });
-
-        } catch (error: any) {
-
-            lastError = error;
-
-            const status = error?.status;
-
-            if (status === 429) {
-                throw error;
-            }
-
-            if (status !== 503) {
-                throw error;
-            }
-
-            if (attempt === maxAttempts) {
-                break;
-            }
-
-            const delay = 1000 * 2 ** (attempt - 1);
-
-            console.log(
-                `Temporary Gemini error (${status}). ` +
-                `Retrying in ${delay / 1000}s...`
-            );
-
-            await new Promise(resolve =>
-                setTimeout(resolve, delay)
-            );
-        }
-    }
-
-    throw lastError;
-}
-
 
 export async function generatePlaywrightSuite(
     testPlan: TestPlan
@@ -155,19 +75,34 @@ IMPORTANT RULES:
     ../../pages/LoginPage
     ../../test-data/users.json
 
+18. When asserting text on a Playwright Locator, always use
+    toHaveText() or toContainText().
+19. Never use toContain() with a Playwright Locator.
+20. For error message locators returned by LoginPage.getErrorMessage(),
+    use toContainText().
+
 TEST PLAN:
 ${testCases}
 `;
 
-    const response = await generateWithRetry(prompt);
+    const response = await generateStructuredJson(
+        prompt,
+        {
+            type: "object",
+            properties: {
+                fileName: {
+                    type: "string"
+                },
+                testCode: {
+                    type: "string"
+                }
+            },
+            required: [
+                "fileName",
+                "testCode"
+            ]
+        }
+    );
 
-    if (!response.text) {
-        throw new Error(
-            "Gemini returned an empty response"
-        );
-    }
-
-    const parsed = JSON.parse(response.text);
-
-    return generatedTestSuiteSchema.parse(parsed);
+    return generatedTestSuiteSchema.parse(response);
 }
