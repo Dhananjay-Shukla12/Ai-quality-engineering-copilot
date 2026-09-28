@@ -28,6 +28,12 @@ PASS ✅
 
 ![AI Quality Engineering Copilot Architecture](docs/architecture.png)
 
+## Self-Healing Demo
+
+A failing Playwright test is analyzed by Gemini using the failure log, source code, and screenshot. The AI generates a repair, the repaired code is validated with TypeScript, and the test is rerun automatically.
+
+![AI Self-Healing Demo](docs/self-healing-demo.png)
+
 ## Key Features
 
 - AI-generated test cases from user stories
