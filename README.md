@@ -24,6 +24,9 @@ Validation & Rerun
     ↓
 PASS ✅
 ```
+## Architecture
+
+![AI Quality Engineering Copilot Architecture](docs/architecture.png)
 
 ## Key Features
 
